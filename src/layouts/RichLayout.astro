@@ -1,0 +1,131 @@
+---
+/**
+ * RichLayout.astro — fx-info（★508 rich-techgo.css DRY 流用・新規CSS禁止）
+ * 元: tenshoku-template/src/layouts/RichLayout.astro（★326 DRY）
+ * 差替: site_name / brand / footer links / PR bar / GSC env / canonical のみ
+ * デザイン本体は public/rich-fx.css（rich-techgo.css verbatim copy）
+ */
+interface BreadcrumbItem { name: string; url?: string; }
+interface Props {
+  title: string;
+  description?: string;
+  breadcrumb?: BreadcrumbItem[];
+  ogUrl?: string;
+}
+
+const {
+  title,
+  description = 'カードローン・消費者金融の公開情報をもとに整理する PR コンテンツです。計画的な利用判断のための材料を提供します。',
+  breadcrumb = [{ name: 'ホーム', url: '/' }],
+  ogUrl = '',
+} = Astro.props;
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://fx-info.pages.dev';
+const gscVerification = import.meta.env.PUBLIC_GSC_VERIFICATION || 'HRlkPakHcDHZPrhT1QR0bRiJrajC2-TjyqlvBl3gDsA';
+const canonical = ogUrl || Astro.url.href;
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  {gscVerification && <meta name="google-site-verification" content={gscVerification} />}
+  <link rel="canonical" href={canonical} />
+
+  <!-- OGP -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content="fx-info" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Claude Design リッチデザイン（★508 rich-techgo.css DRY 流用・簡素化しない・★495） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" />
+  <link rel="stylesheet" href="/rich-fx.css" />
+
+  <title>{title}</title>
+  <slot name="head" />
+</head>
+<body>
+  <!-- グローバル PR表示（★354 ステマ規制） -->
+  <div class="pr-global-bar">
+    PR：本ページはアフィリエイト広告（A8.net 経由）を利用しています | 各金融機関の公式サイトではありません
+  </div>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">NY-squared 編集部<small>fx-info</small></a>
+      <nav class="breadcrumb" aria-label="パンくず">
+        <ol>
+          {breadcrumb.map((b, i) => (
+            <li>
+              {b.url && i < breadcrumb.length - 1
+                ? <a href={b.url}>{b.name}</a>
+                : b.name}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </div>
+  </header>
+
+  <slot />
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h5>NY-squared 編集部</h5>
+          <p>カードローン・消費者金融領域の公開情報をもとに整理する編集部です。本サイトはアフィリエイト広告（A8.net 経由・PR）を利用しており、その収益で運営しています。公的機関の公開情報・各社公式公開情報に基づき、特定商品の効果保証や順位付けは行わず、計画的な利用判断のための材料提供を目的としています。</p>
+          <p>運営：NY-squared (個人事業) / <a href="/about/">運営者情報・特商法</a> / <a href="/editorial-policy/">編集ポリシー</a> / <a href="/privacy-policy/">プライバシーポリシー</a> / <a href="#" id="cookieSettings" role="button">Cookie設定</a></p>
+        </div>
+        <div>
+          <h5>主要案件まとめ</h5>
+          <ul>
+            <li><a href="/central-personal-credit/"><strong>セントラル パーソナルクレジット</strong></a></li>
+            <li><a href="/arrow-hajimete/"><strong>アロー キャッシング</strong> (初めての方向け)</a></li>
+            <li><a href="/arrow-kihon/">アロー 基本情報</a></li>
+            <li><a href="/arrow-shinsa-jikan/">アロー 審査時間</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>公的相談窓口</h5>
+          <ul>
+            <li><a href="https://www.j-fsa.or.jp/" rel="noopener" target="_blank">日本貸金業協会</a></li>
+            <li><a href="https://www.kokusen.go.jp/" rel="noopener" target="_blank">国民生活センター</a></li>
+            <li><a href="https://www.fsa.go.jp/soudan/" rel="noopener" target="_blank">金融庁 相談窓口</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="copyright">© 2026 NY-squared Editorial Team. 本ページは A8.net 経由のアフィリエイトリンクを含む PR コンテンツです。掲載情報は公開時点のもので、最新かつ正確な内容は各社公式サイトをご確認ください。借入は計画的に。</p>
+    </div>
+  </footer>
+
+  <!-- Cookie 同意バナー（★277/★323 CMP プレースホルダ・本番差替） -->
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Cookie 利用について" style="display:none;">
+    <p>本サイトはユーザー体験の改善と広告効果測定のために Cookie を使用します。詳細は<a href="/privacy-policy/">プライバシーポリシー</a>をご確認ください。</p>
+    <div class="cookie-actions">
+      <button type="button" class="secondary" id="cookieReject">必須のみ</button>
+      <button type="button" id="cookieAccept">すべて許可</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      var b=document.getElementById('cookieBanner');
+      if(!b) return;
+      try{ if(!localStorage.getItem('cookieConsent')){ b.style.display='flex'; } }catch(e){ b.style.display='flex'; }
+      function set(v){ try{ localStorage.setItem('cookieConsent',v); localStorage.setItem('cookieConsentAt', new Date().toISOString()); }catch(e){} b.style.display='none'; }
+      var a=document.getElementById('cookieAccept'); if(a) a.onclick=function(){set('all');};
+      var r=document.getElementById('cookieReject'); if(r) r.onclick=function(){set('essential');};
+      var s=document.getElementById('cookieSettings');
+      if(s) s.onclick=function(ev){ ev.preventDefault(); try{ localStorage.removeItem('cookieConsent'); localStorage.removeItem('cookieConsentAt'); }catch(e){} b.style.display='flex'; b.scrollIntoView({behavior:'smooth',block:'end'}); };
+    })();
+  </script>
+</body>
+</html>
